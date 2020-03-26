@@ -1,0 +1,16 @@
+{
+    "name": "battis/persistent-object",
+    "description": "An object-oriented approach to database storage, without the overhead of database abstraction layers",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Seth Battis",
+            "email": "seth@battis.net"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
+        "ext-json": "*",
+        "ext-pdo": "*"
+    }
+}
