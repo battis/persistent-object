@@ -23,6 +23,10 @@ abstract class PersistentObject implements JsonSerializable
         self::MODIFIED => self::MODIFIED
     ];
 
+    static $defaultValues = [
+        self::ORDER => 0
+    ];
+
     /** @var string DateTime conversion format for string output (e.g. in api) */
     protected static $DATE_FORMAT = DATE_ISO8601;
 
@@ -614,6 +618,12 @@ abstract class PersistentObject implements JsonSerializable
      */
     protected function queryInsert(): void
     {
+        foreach(static::$defaultValues as $field => $defaultValue) {
+            if ($this->get($field) === null) {
+                $this->set($field, $defaultValue);
+            }
+        }
+
         $fields = array_diff(static::fieldNames(), [static::canonical(static::CREATED), static::canonical(static::MODIFIED)]);
         if (empty($this->getId())) {
             $fields = array_diff($fields, [static::canonical(static::ID)]);
@@ -637,6 +647,7 @@ abstract class PersistentObject implements JsonSerializable
         if (is_string($fields)) {
             $fields = [$fields];
         }
+
         $fields = array_merge($fields, $this->dirty);
 
         $placeholders = [];
