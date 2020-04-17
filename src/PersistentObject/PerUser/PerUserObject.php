@@ -1,4 +1,9 @@
-<?php /** @noinspection DuplicatedCode */
+<?php
+/**
+ * @noinspection SqlDialectInspection
+ * @noinspection SqlNoDataSourceInspection
+ * @noinspection DuplicatedCode
+ */
 
 // FIXME duplicated code is bad
 
@@ -71,7 +76,7 @@ abstract class PerUserObject extends PersistentObject
         }
     }
 
-    protected static function getSessionUser()
+    public static function getSessionUser()
     {
         return self::$sessionUser;
     }
@@ -86,7 +91,6 @@ abstract class PerUserObject extends PersistentObject
      * @param array $params
      * @return array
      * @throws PersistentObjectException
-     * @noinspection SqlResolve
      */
     protected static function querySelect(Condition $condition = null, $ordering = null, array $params = []): array
     {
@@ -115,7 +119,6 @@ abstract class PerUserObject extends PersistentObject
 
     /**
      * @param array $fields
-     * @throws PerUserObjectException
      * @throws PersistentObjectException
      */
     protected function queryUpdate($fields = []): void
@@ -138,7 +141,6 @@ abstract class PerUserObject extends PersistentObject
         $this->clearChanges();
     }
 
-    /** @noinspection SqlResolve */
     protected function queryDelete()
     {
         $statement = static::prepareStatement(
@@ -155,7 +157,6 @@ abstract class PerUserObject extends PersistentObject
         return 'temp_' . static::databaseTable() . '_per_user';
     }*/
 
-    /** @noinspection SqlResolve */
     /* protected static function prepareStatement(string $query): PDOStatement
     {
         if (preg_match('/(FROM|JOIN)\s+`?/i', $query)) {
@@ -172,7 +173,6 @@ abstract class PerUserObject extends PersistentObject
         return parent::prepareStatement($query);
     } */
 
-    /** @noinspection SqlResolve */
     /* protected static function executeStatement(PDOStatement $statement, array $parameters = null)
     {
         $result = parent::executeStatement($statement, $parameters);
