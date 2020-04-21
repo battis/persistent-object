@@ -20,7 +20,7 @@ abstract class PerUserObject extends PersistentObject
     const USER = 'user';
 
     /** @var string */
-    protected static $userType = User::class;
+    protected static $USER_BINDING = User::class;
 
     /** @var PersistentObject */
     private static $sessionUser;
@@ -44,11 +44,11 @@ abstract class PerUserObject extends PersistentObject
                     'A valid user must be assigned',
                     PerUserObjectException::USER_UNDEFINED
                 );
-            } else if (is_a($user, static::$userType)) {
+            } else if (is_a($user, static::$USER_BINDING)) {
                 self::$sessionUser = $user;
             } else {
                 /** @var PersistentObject $t */
-                $t = static::$userType;
+                $t = static::$USER_BINDING;
                 if (is_array($user)) {
                     self::$sessionUser = $t::createInstance($user);
                 } else {
@@ -213,7 +213,7 @@ abstract class PerUserObject extends PersistentObject
         $this->setField('user', $user, User::class);
         if (empty(self::$sessionUser)) {
             self::assignUser($user);
-        } else if (is_a($user, static::$userType) && $user !== self::$sessionUser) {
+        } else if (is_a($user, static::$USER_BINDING) && $user !== self::$sessionUser) {
             throw new PerUserObjectException(
                 'Attempt to redefine user',
                 PerUserObjectException::USER_REDEFINED

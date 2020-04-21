@@ -12,22 +12,18 @@ use PDOStatement;
 
 abstract class PersistentObject implements JsonSerializable
 {
-    const ID = 'id', ORDER = 'order', CREATED = 'created', MODIFIED = 'modified';
+    const ID = 'id', CREATED = 'created', MODIFIED = 'modified';
 
-    const DEFAULT_ORDER = [self::ORDER => 'ASC'];
 
     protected static $canonicalFields = [
         self::ID => self::ID,
-        self::ORDER => self::ORDER,
         self::CREATED => self::CREATED,
         self::MODIFIED => self::MODIFIED
     ];
 
-    static $defaultValues = [
-        self::ORDER => 0
-    ];
+    protected static $DEFAULT_VALUES = [];
 
-    /** @var string DateTime conversion format for string output (e.g. in api) */
+    /** @var string DateTime conversion format for string output (e.g. in url) */
     protected static $DATE_FORMAT = DATE_ISO8601;
 
     /** @var string Prefix for all database table names */
@@ -35,9 +31,6 @@ abstract class PersistentObject implements JsonSerializable
 
     /** @var string Unique ID of this instance in the database */
     private $id;
-
-    /** @var integer */
-    private $order;
 
     /** @var DateTime When this instance was created in the database */
     private $created;
@@ -59,7 +52,7 @@ abstract class PersistentObject implements JsonSerializable
     private $deferred = [];
 
     /******************************************************************
-     * Canonical database and api naming
+     * Canonical database and url naming
      */
 
     /**
@@ -113,7 +106,7 @@ abstract class PersistentObject implements JsonSerializable
                 case 'deferred':
                     break;
                 default:
-                    if (in_array($field, $fields) === false) {
+                    if (false === in_array($field, $fields)) {
                         $fields[] = $field;
                     }
             }
@@ -144,9 +137,8 @@ abstract class PersistentObject implements JsonSerializable
      *        advance using {@link PersistentObject::setDatabase()}
      * @return PersistentObject[]
      * @throws PersistentObjectException
-     * // FIXME pull out in order -- WTF did all the ordering code go?
      */
-    public static function getInstances(Condition $condition = null, $ordering = self::DEFAULT_ORDER, PDO $pdo = null): array
+    public static function getInstances(Condition $condition = null, $ordering = [], PDO $pdo = null): array
     {
         if ($pdo !== null) {
             self::setDatabase($pdo);
@@ -233,7 +225,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     private static function isCached(string $id): bool
     {
-        return empty(self::$instances[static::class][$id]) === false;
+        return false === empty(self::$instances[static::class][$id]);
     }
 
     /**
@@ -340,7 +332,7 @@ abstract class PersistentObject implements JsonSerializable
     protected function constructFromValues($values, bool $strict = true, bool $overwrite = false, bool $clean = false)
     {
         foreach ($values as $field => $value) {
-            if (empty($value) === false) {
+            if (false === empty($value)) {
                 if ($overwrite || empty($this->$field)) {
                     $this->_set($field, $value, $strict);
                 } else {
@@ -505,7 +497,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     protected static function executeStatement(PDOStatement $statement, array $parameters = [])
     {
-        if ($statement->execute($parameters) === false) {
+        if (false === $statement->execute($parameters)) {
             $message = 'MySQL error ' . $statement->errorCode() . PHP_EOL;
             $message .= $statement->queryString . PHP_EOL;
             foreach ($statement->errorInfo() as $line) {
@@ -533,7 +525,7 @@ abstract class PersistentObject implements JsonSerializable
      * @return PersistentObject[]
      * @throws PersistentObjectException
      */
-    protected function getChildren(string $childType, Condition $condition = null, $ordering = self::DEFAULT_ORDER, $params = []): array
+    protected function getChildren(string $childType, Condition $condition = null, $ordering = [], $params = []): array
     {
         /** @var $childType PersistentObject */
         $condition = Condition::merge(
@@ -567,7 +559,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     protected static function orderingToOrderingClause($ordering): string
     {
-        if ($ordering === null) {
+        if (empty($ordering)) {
             return "";
         } elseif (is_array($ordering)) {
             if (array_keys($ordering) !== range(0, count($ordering) - 1)) {
@@ -618,7 +610,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     protected function queryInsert(): void
     {
-        foreach(static::$defaultValues as $field => $defaultValue) {
+        foreach(static::$DEFAULT_VALUES as $field => $defaultValue) {
             if ($this->get($field) === null) {
                 $this->set($field, $defaultValue);
             }
@@ -686,7 +678,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     public function flushChanges()
     {
-        if (empty($this->dirty) === false) {
+        if (false === empty($this->dirty)) {
             $this->queryUpdate();
         }
     }
@@ -872,24 +864,6 @@ abstract class PersistentObject implements JsonSerializable
     }
 
     /**
-     * @param $order
-     * @throws PersistentObjectException
-     */
-    public function setOrder($order)
-    {
-        return $this->setField(self::ORDER, $order);
-    }
-
-    /**
-     * @return mixed
-     * @throws PersistentObjectException
-     */
-    public function getOrder()
-    {
-        return $this->getField(self::ORDER);
-    }
-
-    /**
      * @param DateTime|string $created
      * @throws Exception
      * @see PersistentObject::$created
@@ -897,7 +871,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     private function setCreated($created)
     {
-        if (is_a($created, DateTime::class) === false) {
+        if (false === is_a($created, DateTime::class)) {
             $created = new DateTime($created);
         }
         $this->created = $created;
@@ -921,7 +895,7 @@ abstract class PersistentObject implements JsonSerializable
      */
     private function setModified($modified)
     {
-        if (is_a($modified, DateTime::class) === false) {
+        if (false === is_a($modified, DateTime::class)) {
             $modified = new DateTime($modified);
         }
         $this->modified = $modified;
@@ -984,7 +958,7 @@ abstract class PersistentObject implements JsonSerializable
 
         foreach ($this->fieldNames() as $field) {
             try {
-                if (in_array($field, $fieldsToSuppress) === false) {
+                if (false === in_array($field, $fieldsToSuppress)) {
                     $value = $this->_get($field);
                     if (is_a($value, PersistentObject::class) && in_array($field, $fieldsToExpand)) {
                         $expanded[$field] = $value;
