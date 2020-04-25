@@ -1,7 +1,8 @@
 # Dependencies
 /vendor/
-/node_modules
-/bower_components
+/node_modules/
+/bower_components/
+/external/
 
 # IDEs and editors
 /.idea/
@@ -16,37 +17,23 @@ Thumbs.db
 
 # PHP development
 phpdoc.xml
-/build/
 /coverage/
-/external/
 .phpunit.result.cache
 
 # environment
 .env
+.env.*
+!.env.defaults
+!.env.example
+
+# runtme
 /logs/*
 !/logs/README.md
 /var/*
 !/var/README.md
+/public/
+*.log*
 
-# create-react-app
-# dependencies
-/node_modules
+# js development
 /.pnp
 .pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*

@@ -962,6 +962,7 @@ abstract class PersistentObject implements JsonSerializable
                     $value = $this->_get($field);
                     if (is_a($value, PersistentObject::class) && in_array($field, $fieldsToExpand)) {
                         $expanded[$field] = $value;
+                        // TODO $expanded["{$field}_id"]  = $value->getId();
                     } else {
                         $array[$field] = static::prepareValueForToArray($field, $value);
                     }
