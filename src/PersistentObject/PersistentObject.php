@@ -960,9 +960,11 @@ abstract class PersistentObject implements JsonSerializable
             try {
                 if (false === in_array($field, $fieldsToSuppress)) {
                     $value = $this->_get($field);
-                    if (is_a($value, PersistentObject::class) && in_array($field, $fieldsToExpand)) {
-                        $expanded[$field] = $value;
-                        // TODO $expanded["{$field}_id"]  = $value->getId();
+                    if (is_a($value, PersistentObject::class)) {
+                        if (in_array($field, $fieldsToExpand)) {
+                            $expanded[$field] = $value;
+                        }
+                        $array["{$field}_id"] = $value->getId();
                     } else {
                         $array[$field] = static::prepareValueForToArray($field, $value);
                     }
