@@ -12,5 +12,10 @@
         "php": "^7.3",
         "ext-json": "*",
         "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Battis\\": "src"
+        }
     }
 }
