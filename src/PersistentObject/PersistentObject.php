@@ -442,6 +442,8 @@ abstract class PersistentObject implements JsonSerializable
         if (is_a($value, DateTime::class)) {
             /** @var DateTime $value */
             return $value->format('Y-m-d H:i:s');
+        } else if (is_bool($value)) { // https://phpdelusions.net/pdo#methods
+            return $value ? 1 : 0;
         }
         return (string)$value;
     }
